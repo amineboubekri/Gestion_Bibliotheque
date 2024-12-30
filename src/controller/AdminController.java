@@ -337,5 +337,16 @@ public class AdminController extends JFrame   {
             EmpruntController.writeEmpruntFile();
         }
     }
+    public static void returnBook(BiblioView x, int index){
+        if(index<0){JOptionPane.showMessageDialog(x,"Please select a loan");return;}
+        Retour newRetour=new Retour();
+        newRetour.setEmpruntretournee(EmpruntController.findEmprunt(Integer.parseInt((String) x.getBookTableModel().getValueAt(index,0))));
+        newRetour.setLivreretourne(LivreController.findBook(Integer.parseInt((String)x.getEmpruntTableModel().getValueAt(index,1))));
+        newRetour.setMembreemprunteur(MembreController.findMember(Integer.parseInt((String) x.getEmpruntTableModel().getValueAt(index,2))));
+        newRetour.setDateRetour(Date.valueOf(LocalDate.now()));
+        RetourController.retourList.add(newRetour);
+        RetourController.writeRetourFile();
+
+    }
 }
 

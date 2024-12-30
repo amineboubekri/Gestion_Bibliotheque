@@ -23,13 +23,15 @@ public class Retour {
         this.membreemprunteur=membreemprunteur;
         this.dateRetour=dateRetour;
         this.empruntretournee.setDateRetourReel(dateRetour);
+
+    }
+
+    public void calculPenalite(){
         if(dateRetour.after(empruntretournee.getDateEmprunt())){
             this.membreemprunteur.setPenalized(true);
             this.membreemprunteur.setFinPenalite((Date.valueOf(LocalDate.now().plusDays(2L *(dateRetour.compareTo(empruntretournee.getDateEmprunt()))))));
         }
     }
-
-
     public int getIdRetour() {
         return idRetour;
     }

@@ -21,9 +21,10 @@ public class MembreController {
 
     public static void readMemberFile() {
         try{
-            BufferedReader ois=new BufferedReader(new FileReader("C:\\Users\\ibrah\\OneDrive\\Bureau\\ProjetJava\\src\\Membres.csv"));
+            BufferedReader ois=new BufferedReader(new FileReader(System.getProperty("user.dir")+"\\src\\Membres.csv"));
             String s;
             while((s=ois.readLine())!=null) {
+                if(s.isEmpty()){return;}
                 Membre m=new Membre();
                 String[] memberField=s.split(",");
                 if(MEMBER_ID_CPT<Integer.parseInt(memberField[0])) {
@@ -37,7 +38,6 @@ public class MembreController {
                 m.setAdresse(memberField[5]);
                 membersList.add(m);
             }
-            System.out.println(membersList);
             ois.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -47,7 +47,7 @@ public class MembreController {
 
     public static void WriteMemberFile() {
         try{
-            BufferedWriter oos=new BufferedWriter(new FileWriter("C:\\Users\\ibrah\\OneDrive\\Bureau\\ProjetJava\\src\\Membres.csv"));
+            BufferedWriter oos=new BufferedWriter(new FileWriter(System.getProperty("user.dir")+"\\src\\Membres.csv"));
             for(Membre m: membersList){
                 oos.write(m.toString());
                 oos.newLine();

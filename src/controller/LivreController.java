@@ -9,6 +9,7 @@ import java.io.*;
 public class LivreController {
     public static List<Livre> livreslist=new ArrayList<>();
     public static int LIVRE_ID_CPT=0;
+
     public static Livre findBook(int id){
         for(Livre l:livreslist){
             if(l.getidBook()==id){
@@ -17,11 +18,13 @@ public class LivreController {
         }
         return null;
     }
+
     public static void readLivreFile() {
         try{
-            BufferedReader ois=new BufferedReader(new FileReader("C:\\Users\\ibrah\\OneDrive\\Bureau\\ProjetJava\\src\\Livres.csv"));
+            BufferedReader ois=new BufferedReader(new FileReader(System.getProperty("user.dir")+"\\src\\Livres.csv"));
             String line;
             while((line=ois.readLine())!=null) {
+                if(line.isEmpty()){return;}
                 Livre l=new Livre();
                 String[] livrefields=line.split(",");
                 if(LIVRE_ID_CPT<Integer.parseInt(livrefields[0])){
@@ -35,7 +38,6 @@ public class LivreController {
                 l.setNbCopies(Integer.parseInt(livrefields[5]));
                 livreslist.add(l);
             }
-            System.out.println(livreslist);
             ois.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -45,7 +47,7 @@ public class LivreController {
 
     public static void WriteLivreFile() {
         try{
-            BufferedWriter oos=new BufferedWriter(new FileWriter("C:\\Users\\ibrah\\OneDrive\\Bureau\\ProjetJava\\src\\Livres.csv"));
+            BufferedWriter oos=new BufferedWriter(new FileWriter(System.getProperty("user.dir")+"\\src\\Livres.csv"));
             for(Livre l:livreslist){
                 oos.write(l.toString());
                 oos.newLine();

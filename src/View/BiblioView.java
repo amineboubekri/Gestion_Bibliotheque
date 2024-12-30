@@ -66,6 +66,7 @@ public class BiblioView extends JFrame {
         MembreController.readMemberFile();
         LivreController.readLivreFile();
         EmpruntController.readEmpruntFile();
+        RetourController.readRetourFile();
         addComponentsUser();
         addComponentsBooks();
         addComponentsEmprunt();
@@ -79,12 +80,24 @@ public class BiblioView extends JFrame {
         bookAddButton.addActionListener(e-> AdminController.ajouterLivre(this));
         bookModifyButton.addActionListener(e->AdminController.modifierLivre(this,bookTable.getSelectedRow()));
         bookDeleteButton.addActionListener(e->AdminController.supprimerLivre(this,bookTable.getSelectedRow()));
+        bookEmpruntButton.addActionListener(e->AdminController.borrowBook(this,bookTable.getSelectedRow()));
 
         userAddButton.addActionListener(e->AdminController.ajouterMembre(this));
         userModifyButton.addActionListener(e->AdminController.modifierMembre(this,userTable.getSelectedRow()));
         userDeleteButton.addActionListener(e->AdminController.supprimerMembre(this,userTable.getSelectedRow()));
 
         empruntAddButton.addActionListener(e->AdminController.ajouterEmprunt(this));
+        empruntTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                empruntDetailsId.setText("ID Emprunt :  "+ (empruntTableModel.getValueAt(empruntTable.getSelectedRow(),0)));
+                empruntDetailsNomUser.setText("nom propriétaire :  "+MembreController.findMember((int)(empruntTableModel.getValueAt(empruntTable.getSelectedRow(),2))).getFullName());
+                empruntDetailsNomBook.setText("nom livre :  "+ LivreController.findBook((int)(empruntTableModel.getValueAt(empruntTable.getSelectedRow(),1))).getTitre());
+                empruntDetailsDateEmprunt.setText("date d'emprunt :  "+empruntTableModel.getValueAt(empruntTable.getSelectedRow(),3));
+                empruntDetailsDateRetourTheorique.setText("date de retour théorique :  " + empruntTableModel.getValueAt(empruntTable.getSelectedRow(),4));
+            }
+        });
+        empruntTable.getSelectedRow();
 
         bookSearchField.addKeyListener(new KeyAdapter() {
             @Override
@@ -107,6 +120,20 @@ public class BiblioView extends JFrame {
                 typed = typed.trim();
                 TableRowSorter<TableModel> sorter=new TableRowSorter<>(userTableModel);
                 userTable.setRowSorter(sorter);
+                if(typed.length()==0){
+                    sorter.setRowFilter(null);
+                }else{
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)"+typed));
+                }
+            }
+        });
+        empruntSearchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                String typed = userSearchField.getText()+e.getKeyChar();
+                typed = typed.trim();
+                TableRowSorter<TableModel> sorter=new TableRowSorter<>(empruntTableModel);
+                empruntTable.setRowSorter(sorter);
                 if(typed.length()==0){
                     sorter.setRowFilter(null);
                 }else{
@@ -248,7 +275,7 @@ public class BiblioView extends JFrame {
 
     public void addComponentsEmprunt(){
         for (Emprunt em : EmpruntController.empruntList) {
-            bookTableModel.addRow(new Object[]{
+            empruntTableModel.addRow(new Object[]{
                     em.getIdE(),
                     em.getEmprunteur().getUid(),
                     em.getLivreEmprunte().getidBook(),
@@ -301,6 +328,5 @@ public class BiblioView extends JFrame {
 
         mainTabbedPane.addTab("Emprunts",mainPanel);
     }
-
 }
 

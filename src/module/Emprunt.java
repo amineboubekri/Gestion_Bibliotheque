@@ -2,7 +2,7 @@ package module;
 
 import controller.EmpruntController;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Emprunt {
     private int idE;

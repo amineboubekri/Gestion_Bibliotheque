@@ -1,9 +1,8 @@
 package module;
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.Assert.*;
 import java.sql.Date;
-
-import org.junit.jupiter.api.*;
+import org.junit.Before;
+import org.junit.Test;
 
 class EmpruntTest {
 
@@ -12,7 +11,7 @@ class EmpruntTest {
     private Date dateEmprunt;
     private Date dateRetourTheo;
 
-    @BeforeEach
+    @Before
     void setup() {
         // Create actual Livre and Membre instances
         livre = new Livre("Book Title", "Author Name", 2024, "Fiction", 10);

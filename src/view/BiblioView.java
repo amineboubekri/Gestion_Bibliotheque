@@ -1,15 +1,18 @@
 package view;
 import controller.*;
-import module.*;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import module.*;
 
 /**
  * Represents the main user interface for the library management system.
@@ -17,6 +20,20 @@ import java.util.Map;
  * and integrates with the corresponding controllers for each entity.
  */
 public class BiblioView extends JFrame {
+
+    // Theme colors
+    private final Color PRIMARY_COLOR = new Color(51, 102, 153);    // Medium blue
+    private final Color SECONDARY_COLOR = new Color(245, 245, 245); // Light gray
+    private final Color ACCENT_COLOR = new Color(255, 153, 51);     // Orange
+    private final Color TEXT_COLOR = new Color(51, 51, 51);         // Dark gray
+    private final Color BACKGROUND_COLOR = new Color(255, 255, 255); // White
+    private final Color BUTTON_COLOR = new Color(41, 128, 185);     // Blue
+    private final Color BUTTON_TEXT_COLOR = new Color(255, 255, 255); // White
+    private final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 14);
+    private final Font REGULAR_FONT = new Font("Segoe UI", Font.PLAIN, 12);
+    private final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 16);
+    private final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 12);
+    private final int PADDING = 10;
 
     /**
      * Main tabbed pane containing the "Users", "Books", and "Emprunts" sections.
@@ -81,17 +98,34 @@ public class BiblioView extends JFrame {
         LivreController.readLivreFile();
         EmpruntController.readEmpruntFile();
         RetourController.readRetourFile();
+        
+        // Apply theme to components
+        applyTheme();
+        
         addComponentsUser();
         addComponentsBooks();
         addComponentsEmprunt();
         addComponentsStatistics();
-        add(mainTabbedPane);
+        
+        // Create a main panel with padding
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
+        contentPanel.setBackground(BACKGROUND_COLOR);
+        contentPanel.add(mainTabbedPane, BorderLayout.CENTER);
+        
+        // Add a header panel
+        JPanel headerPanel = createHeaderPanel();
+        contentPanel.add(headerPanel, BorderLayout.NORTH);
+        
+        add(contentPanel);
         pack();
-        setTitle("Library MAMI");
-        setSize(1080,720);
+        setTitle("Library Management System");
+        setSize(1080, 720);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        
+        // Add button listeners
         bookAddButton.addActionListener(e-> AdminController.ajouterLivre(this));
         bookModifyButton.addActionListener(e->AdminController.modifierLivre(this,bookTable.getSelectedRow()));
         bookDeleteButton.addActionListener(e->AdminController.supprimerLivre(this,bookTable.getSelectedRow()));
@@ -103,6 +137,8 @@ public class BiblioView extends JFrame {
 
         empruntAddButton.addActionListener(e->AdminController.ajouterEmprunt(this));
         empruntRetourButton.addActionListener(e->AdminController.returnBook(this,empruntTable.getSelectedRow()));
+        
+        // Search functionality
         bookSearchField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -146,6 +182,119 @@ public class BiblioView extends JFrame {
             }
         });
     }
+    
+    /**
+     * Creates the header panel with the library title
+     */
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(PRIMARY_COLOR);
+        headerPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        
+        JLabel titleLabel = new JLabel("Library Management System");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        
+        return headerPanel;
+    }
+    
+    /**
+     * Applies the theme to all components
+     */
+    private void applyTheme() {
+        // Style buttons
+        styleButton(userAddButton);
+        styleButton(userModifyButton);
+        styleButton(userDeleteButton);
+        styleButton(bookAddButton);
+        styleButton(bookModifyButton);
+        styleButton(bookDeleteButton);
+        styleButton(bookEmpruntButton);
+        styleButton(empruntAddButton);
+        styleButton(empruntRetourButton);
+        
+        // Style tabbed pane
+        mainTabbedPane.setFont(HEADER_FONT);
+        mainTabbedPane.setBackground(BACKGROUND_COLOR);
+        mainTabbedPane.setForeground(TEXT_COLOR);
+        
+        // Style tables
+        styleTable(userTable);
+        styleTable(bookTable);
+        styleTable(empruntTable);
+        styleTable(returnTable);
+        
+        // Style text fields
+        styleTextField(userSearchField);
+        styleTextField(bookSearchField);
+        styleTextField(empruntSearchField);
+        styleTextField(empruntAddUserNomField);
+        styleTextField(empruntAddBookNomField);
+        
+        // Style labels
+        userSearchLabel.setFont(REGULAR_FONT);
+        bookSearchLabel.setFont(REGULAR_FONT);
+        empruntSearchLabel.setFont(REGULAR_FONT);
+        empruntAddNomLabel.setFont(REGULAR_FONT);
+        empruntAddBookLabel.setFont(REGULAR_FONT);
+    }
+    
+    /**
+     * Applies consistent styling to a button
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(BUTTON_COLOR);
+        button.setForeground(BUTTON_TEXT_COLOR);
+        button.setFont(BUTTON_FONT);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Add hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(BUTTON_COLOR.darker());
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(BUTTON_COLOR);
+            }
+        });
+    }
+    
+    /**
+     * Applies consistent styling to a table
+     */
+    private void styleTable(JTable table) {
+        table.setFont(REGULAR_FONT);
+        table.setRowHeight(25);
+        table.setIntercellSpacing(new Dimension(10, 5));
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setSelectionBackground(PRIMARY_COLOR.brighter());
+        table.setSelectionForeground(Color.WHITE);
+        
+        JTableHeader header = table.getTableHeader();
+        header.setFont(HEADER_FONT);
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setBorder(null);
+    }
+    
+    /**
+     * Applies consistent styling to a text field
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setFont(REGULAR_FONT);
+        textField.setBackground(Color.WHITE);
+        textField.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200)), 
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
+    }
 
     public DefaultTableModel getEmpruntTableModel() {
         return empruntTableModel;
@@ -168,6 +317,7 @@ public class BiblioView extends JFrame {
      * Populates user data and sets up the user tab layout.
      */
     public void addComponentsUser() {
+        // Populate user data
         for (Membre m : MembreController.membersList) {
             if(!m.isPenalized())
                 userTableModel.addRow(new Object[]{
@@ -189,32 +339,64 @@ public class BiblioView extends JFrame {
                         m.getFinPenalite()
                 });
         }
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        
+        // Create the main panel with border layout
+        JPanel mainPanel = new JPanel(new BorderLayout(PADDING, PADDING));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
-        // Panel for user buttons
-        JPanel userP1 = new JPanel();
-        userP1.setLayout(new GridLayout(4, 1, 10, 10));
-        userP1.add(userAddButton);
-        userP1.add(userModifyButton);
-        userP1.add(userDeleteButton);
+        // Create a panel for the button actions with styled title
+        JPanel actionPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        actionPanel.setBackground(BACKGROUND_COLOR);
+        actionPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(PRIMARY_COLOR),
+            "Actions",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            HEADER_FONT,
+            PRIMARY_COLOR
+        ));
+        
+        // Add buttons to the action panel with some padding
+        JPanel buttonPanel1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel1.setBackground(BACKGROUND_COLOR);
+        buttonPanel1.add(userAddButton);
+        actionPanel.add(buttonPanel1);
+        
+        JPanel buttonPanel2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel2.setBackground(BACKGROUND_COLOR);
+        buttonPanel2.add(userModifyButton);
+        actionPanel.add(buttonPanel2);
+        
+        JPanel buttonPanel3 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel3.setBackground(BACKGROUND_COLOR);
+        buttonPanel3.add(userDeleteButton);
+        actionPanel.add(buttonPanel3);
 
-        // Panel for search field at the top
-        JPanel userP2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        userP2.add(userSearchLabel);
-        userP2.add(userSearchField);
-        JPanel userP3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel userP4 = new JPanel();
-        userP4.add(userP2);
-        userP4.add(userP3);
+        // Create a panel for the search field
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.setBackground(BACKGROUND_COLOR);
+        searchPanel.setBorder(new EmptyBorder(0, 0, PADDING, 0));
+        
+        // Add a descriptive label for the search field
+        JLabel searchTitle = new JLabel("Find Members:");
+        searchTitle.setFont(HEADER_FONT);
+        searchTitle.setForeground(PRIMARY_COLOR);
+        searchPanel.add(searchTitle);
+        searchPanel.add(userSearchLabel);
+        searchPanel.add(userSearchField);
 
-        // User list setup
-        userTable.setModel(userTableModel);
+        // Create a scroll pane for the user table with custom border
         JScrollPane userListScrollPane = new JScrollPane(userTable);
-
-        // Add to the main panel
-        mainPanel.add(userP4, BorderLayout.NORTH);
+        userListScrollPane.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR));
+        
+        // Add components to the main panel
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
         mainPanel.add(userListScrollPane, BorderLayout.CENTER);
-        mainPanel.add(userP1, BorderLayout.EAST);
+        mainPanel.add(actionPanel, BorderLayout.EAST);
+        
+        // Add the main panel to the tabbed pane
         mainTabbedPane.addTab("Members", mainPanel);
     }
 
@@ -223,6 +405,7 @@ public class BiblioView extends JFrame {
      * Populates book data and sets up the book tab layout.
      */
     public void addComponentsBooks(){
+        // Populate book data
         for (Livre l : LivreController.livreslist) {
             bookTableModel.addRow(new Object[]{
                     l.getidBook(),
@@ -233,40 +416,78 @@ public class BiblioView extends JFrame {
                     l.getNbCopies()
             });
         }
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel bookP1 = new JPanel();
-        bookP1.setLayout(new GridLayout(5,1,10,10));
-        bookP1.add(bookAddButton);
-        bookP1.add(bookModifyButton);
-        bookP1.add(bookDeleteButton);
-        bookP1.add(bookEmpruntButton);
+        
+        // Create the main panel with border layout
+        JPanel mainPanel = new JPanel(new BorderLayout(PADDING, PADDING));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
-        JPanel bookP2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        bookP2.add(bookSearchLabel);
-        bookP2.add(bookSearchField);
-        JPanel bookP3 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel bookP4 = new JPanel();
-        bookP4.add(bookP2);
-        bookP4.add(bookP3);
+        // Create a panel for the button actions with styled title
+        JPanel actionPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        actionPanel.setBackground(BACKGROUND_COLOR);
+        actionPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(PRIMARY_COLOR),
+            "Book Actions",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            HEADER_FONT,
+            PRIMARY_COLOR
+        ));
+        
+        // Add buttons to the action panel
+        JPanel buttonPanel1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel1.setBackground(BACKGROUND_COLOR);
+        buttonPanel1.add(bookAddButton);
+        actionPanel.add(buttonPanel1);
+        
+        JPanel buttonPanel2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel2.setBackground(BACKGROUND_COLOR);
+        buttonPanel2.add(bookModifyButton);
+        actionPanel.add(buttonPanel2);
+        
+        JPanel buttonPanel3 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel3.setBackground(BACKGROUND_COLOR);
+        buttonPanel3.add(bookDeleteButton);
+        actionPanel.add(buttonPanel3);
+        
+        JPanel buttonPanel4 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel4.setBackground(BACKGROUND_COLOR);
+        buttonPanel4.add(bookEmpruntButton);
+        actionPanel.add(buttonPanel4);
 
-        bookTable.setModel(bookTableModel);
+        // Create a panel for the search field
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.setBackground(BACKGROUND_COLOR);
+        searchPanel.setBorder(new EmptyBorder(0, 0, PADDING, 0));
+        
+        // Add a descriptive label for the search field
+        JLabel searchTitle = new JLabel("Find Books:");
+        searchTitle.setFont(HEADER_FONT);
+        searchTitle.setForeground(PRIMARY_COLOR);
+        searchPanel.add(searchTitle);
+        searchPanel.add(bookSearchLabel);
+        searchPanel.add(bookSearchField);
+
+        // Create a scroll pane for the book table with custom border
         JScrollPane bookListScrollPane = new JScrollPane(bookTable);
-
-        mainPanel.add(bookP4,BorderLayout.NORTH);
-        mainPanel.add(bookListScrollPane,BorderLayout.CENTER);
-        mainPanel.add(bookP1,BorderLayout.EAST);
-
-        mainTabbedPane.addTab("Books",mainPanel);
-
+        bookListScrollPane.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR));
+        
+        // Add components to the main panel
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+        mainPanel.add(bookListScrollPane, BorderLayout.CENTER);
+        mainPanel.add(actionPanel, BorderLayout.EAST);
+        
+        // Add the main panel to the tabbed pane
+        mainTabbedPane.addTab("Books", mainPanel);
     }
-
-
 
     /**
      * Adds components for the "Emprunts" section of the library system.
      * Populates loan data and sets up the loan tab layout.
      */
     public void addComponentsEmprunt(){
+        // Populate loan data
         for (Emprunt em : EmpruntController.empruntList) {
             if(!em.isReturned()) {
                 empruntTableModel.addRow(new Object[]{
@@ -278,6 +499,7 @@ public class BiblioView extends JFrame {
                 });
             }
         }
+        // Populate returns data
         for(Retour re: RetourController.retourList){
             returnTableModel.addRow(new Object[]{
                     re.getIdRetour(),
@@ -288,45 +510,96 @@ public class BiblioView extends JFrame {
             });
         }
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel empruntP1 = new JPanel(new GridLayout(3,1,10,10));
-        JPanel empruntsubP1 = new JPanel();
-        empruntsubP1.add(empruntAddNomLabel);
-        empruntsubP1.add(empruntAddUserNomField);
-        JPanel empruntsubP2 = new JPanel();
-        empruntsubP2.add(empruntAddBookLabel);
-        empruntsubP2.add(empruntAddBookNomField);
-        empruntP1.add(empruntsubP1);
-        empruntP1.add(empruntsubP2);
-        empruntP1.add(empruntAddButton);
+        // Create the main panel with border layout
+        JPanel mainPanel = new JPanel(new BorderLayout(PADDING, PADDING));
+        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
-        JPanel empruntP2 = new JPanel(new GridLayout(6,1,10,10));
-        empruntP2.add(empruntRetourButton);
+        // Create a panel for loan actions
+        JPanel loanActionsPanel = new JPanel(new BorderLayout());
+        loanActionsPanel.setBackground(BACKGROUND_COLOR);
+        loanActionsPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(PRIMARY_COLOR),
+            "Loan Actions",
+            TitledBorder.LEFT,
+            TitledBorder.TOP,
+            HEADER_FONT,
+            PRIMARY_COLOR
+        ));
+        
+        // Panel for adding new loans
+        JPanel newLoanPanel = new JPanel(new GridLayout(3, 1, 5, 10));
+        newLoanPanel.setBackground(BACKGROUND_COLOR);
+        newLoanPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        // User ID field
+        JPanel userIdPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        userIdPanel.setBackground(BACKGROUND_COLOR);
+        empruntAddNomLabel.setFont(REGULAR_FONT);
+        userIdPanel.add(empruntAddNomLabel);
+        userIdPanel.add(empruntAddUserNomField);
+        newLoanPanel.add(userIdPanel);
+        
+        // Book ID field
+        JPanel bookIdPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bookIdPanel.setBackground(BACKGROUND_COLOR);
+        empruntAddBookLabel.setFont(REGULAR_FONT);
+        bookIdPanel.add(empruntAddBookLabel);
+        bookIdPanel.add(empruntAddBookNomField);
+        newLoanPanel.add(bookIdPanel);
+        
+        // Add loan button
+        JPanel addLoanButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        addLoanButtonPanel.setBackground(BACKGROUND_COLOR);
+        addLoanButtonPanel.add(empruntAddButton);
+        newLoanPanel.add(addLoanButtonPanel);
+        
+        // Return book panel
+        JPanel returnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        returnPanel.setBackground(BACKGROUND_COLOR);
+        returnPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        returnPanel.add(empruntRetourButton);
+        
+        // Combine loan actions
+        loanActionsPanel.add(newLoanPanel, BorderLayout.NORTH);
+        loanActionsPanel.add(returnPanel, BorderLayout.CENTER);
 
-        JPanel empruntP3 = new JPanel(new GridLayout(2,1,10,10));
-        empruntP3.add(empruntP1);
-        empruntP3.add(empruntP2);
+        // Create a panel for the search field
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.setBackground(BACKGROUND_COLOR);
+        searchPanel.setBorder(new EmptyBorder(0, 0, PADDING, 0));
+        
+        // Add a descriptive label for the search field
+        JLabel searchTitle = new JLabel("Find Loans:");
+        searchTitle.setFont(HEADER_FONT);
+        searchTitle.setForeground(PRIMARY_COLOR);
+        searchPanel.add(searchTitle);
+        searchPanel.add(empruntSearchLabel);
+        searchPanel.add(empruntSearchField);
 
-        JPanel empruntP4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        empruntP4.add(empruntSearchLabel);
-        empruntP4.add(empruntSearchField);
-
-        JPanel empruntP5 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel empruntP6 = new JPanel();
-        empruntP6.add(empruntP4);
-        empruntP6.add(empruntP5);
-
-
+        // Create tables panel with tabs
+        JTabbedPane loansTabbedPane = new JTabbedPane();
+        loansTabbedPane.setFont(REGULAR_FONT);
+        
+        // Create scroll panes for the tables
         JScrollPane empruntListScrollPane = new JScrollPane(empruntTable);
-        JScrollPane returnTableScrollPane=new JScrollPane(returnTable);
-        JPanel tablesPanel=new JPanel(new GridLayout(2,1));
-        tablesPanel.add(empruntListScrollPane);
-        tablesPanel.add(returnTableScrollPane);
-        mainPanel.add(empruntP6,BorderLayout.NORTH);
-        mainPanel.add(tablesPanel,BorderLayout.CENTER);
-        mainPanel.add(empruntP3,BorderLayout.EAST);
-
-        mainTabbedPane.addTab("Loans",mainPanel);
+        empruntListScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        JScrollPane returnTableScrollPane = new JScrollPane(returnTable);
+        returnTableScrollPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        // Add tables to tabbed pane
+        loansTabbedPane.addTab("Current Loans", empruntListScrollPane);
+        loansTabbedPane.addTab("Returned Books", returnTableScrollPane);
+        
+        // Add components to the main panel
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+        mainPanel.add(loansTabbedPane, BorderLayout.CENTER);
+        mainPanel.add(loanActionsPanel, BorderLayout.EAST);
+        
+        // Add the main panel to the tabbed pane
+        mainTabbedPane.addTab("Loans", mainPanel);
     }
     private void addComponentsStatistics() {
 // Create table models for statistics
